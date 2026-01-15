@@ -1,0 +1,73 @@
+/*
+You have your main employees table and a 
+migration_map table. You need to replace 
+the old emp_id with the new_uuid, but only 
+for employees belonging to departments that 
+haven't been "Sunset" (decommissioned)
+*/
+
+select top 2 * from employees;
+select top 2 * from migration_map;
+select top 3* from departments;
+
+update e
+set 
+e.emp_id= new_uuid,
+e.audit_status ='Migrated'
+from migration_map m
+join departments d 
+	on m.dept_id = d.dept_id
+join employees e 
+	on m.old_id = e.emp_id
+where 
+	d.status ='Active'
+
+
+
+
+
+
+-- 1. Departments Table
+CREATE TABLE departments (
+    dept_id INT PRIMARY KEY,
+    dept_name VARCHAR(50),
+    max_budget DECIMAL(15, 2),
+    status VARCHAR(10) -- 'Active' or 'Sunset'
+);
+
+-- 2. Employees Table
+CREATE TABLE employees (
+    emp_id VARCHAR(50) PRIMARY KEY, -- Using VARCHAR to accommodate new UUIDs
+    name VARCHAR(50),
+    salary DECIMAL(10, 2),
+    dept_id INT,
+    audit_status VARCHAR(20) DEFAULT 'Normal'
+);
+
+-- 3. Migration Mapping Table
+CREATE TABLE migration_map (
+    old_id VARCHAR(50),
+    new_uuid VARCHAR(50),
+    dept_id INT
+);
+
+INSERT INTO departments VALUES 
+(101, 'Engineering', 500000, 'Active'),
+(102, 'Marketing', 200000, 'Active'),
+(103, 'Legacy-Ops', 100000, 'Sunset');
+INSERT INTO employees (emp_id, name, salary, dept_id) VALUES
+('E01','Alice',90000,101), ('E02','Bob',95000,101), ('E03','Charlie',110000,101), 
+('E04','David',85000,101), ('E05','Eve',120000,101), ('E06','Frank',92000,101),
+('E07','Grace',60000,102), ('E08','Heidi',65000,102), ('E09','Ivan',70000,102), 
+('E10','Judy',62000,102), ('E11','Kevin',58000,102), ('E12','Lana',61000,102),
+('E13','Mike',45000,103), ('E14','Nina',42000,103), ('E15','Oscar',48000,103),
+('E16','Paul',50000,103), ('E17','Quinn',47000,103), ('E18','Rose',46000,103),
+('E19','Sam',49000,103), ('E20','Tara',44000,103);
+INSERT INTO migration_map VALUES
+('E01','UUID-9901',101), ('E02','UUID-9902',101), ('E03','UUID-9903',101),
+('E04','UUID-9904',101), ('E05','UUID-9905',101), ('E06','UUID-9906',101),
+('E07','UUID-8807',102), ('E08','UUID-8808',102), ('E09','UUID-8809',102),
+('E10','UUID-8810',102), ('E11','UUID-8811',102), ('E12','UUID-8812',102),
+('E13','UUID-7713',103), ('E14','UUID-7714',103), ('E15','UUID-7715',103),
+('E16','UUID-7716',103), ('E17','UUID-7717',103), ('E18','UUID-7718',103),
+('E19','UUID-7719',103), ('E20','UUID-7720',103);
